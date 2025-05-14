@@ -1,5 +1,6 @@
 import json
 import os
+import csv
 
 CONTACTS_FILE = 'contacts.json'
 
@@ -15,7 +16,7 @@ def save_contacts(contacts):
     with open(CONTACTS_FILE, 'w') as f:
         json.dump(contacts, f, indent=4)
 
-# Add a contact
+# Add a new contact
 def add_contact(contacts):
     name = input("Enter contact name: ").strip()
     if name in contacts:
@@ -62,14 +63,36 @@ def update_contact(contacts):
     else:
         print("Contact not found.")
 
-# Display all contacts
+# Delete a contact
+def delete_contact(contacts):
+    name = input("Enter name to delete: ").strip()
+    if name in contacts:
+        del contacts[name]
+        print(f"Contact '{name}' deleted successfully.")
+    else:
+        print("Contact not found.")
+
+# List all contacts sorted
 def list_contacts(contacts):
     if not contacts:
         print("No contacts available.")
         return
-    print("\n--- All Contacts ---")
-    for name, info in contacts.items():
-        print(f"Name: {name}, Phone: {info['phone']}, Email: {info['email']}")
+    print("\n--- All Contacts (Sorted) ---")
+    for name in sorted(contacts):
+        print(f"Name: {name}, Phone: {contacts[name]['phone']}, Email: {contacts[name]['email']}")
+
+# Export contacts to CSV
+def export_to_csv(contacts):
+    if not contacts:
+        print("No contacts to export.")
+        return
+    with open('contacts.csv', 'w', newline='') as csvfile:
+        fieldnames = ['Name', 'Phone', 'Email']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for name, info in contacts.items():
+            writer.writerow({'Name': name, 'Phone': info['phone'], 'Email': info['email']})
+    print("Contacts exported to 'contacts.csv' successfully!")
 
 # Main menu
 def main():
@@ -80,10 +103,12 @@ def main():
         print("1. Add Contact")
         print("2. Search Contact")
         print("3. Update Contact")
-        print("4. List All Contacts")
-        print("5. Exit")
+        print("4. Delete Contact")
+        print("5. List All Contacts")
+        print("6. Export to CSV")
+        print("7. Exit")
 
-        choice = input("Enter your choice (1-5): ").strip()
+        choice = input("Enter your choice (1-7): ").strip()
 
         if choice == '1':
             add_contact(contacts)
@@ -92,14 +117,17 @@ def main():
         elif choice == '3':
             update_contact(contacts)
         elif choice == '4':
-            list_contacts(contacts)
+            delete_contact(contacts)
         elif choice == '5':
+            list_contacts(contacts)
+        elif choice == '6':
+            export_to_csv(contacts)
+        elif choice == '7':
             save_contacts(contacts)
             print("Contacts saved. Exiting program.")
             break
         else:
-            print("Invalid choice! Please enter a number between 1 and 5.")
+            print("Invalid choice! Please enter a number between 1 and 7.")
 
 if __name__ == "__main__":
     main()
-   
